@@ -16,15 +16,17 @@ jobs:
           mkdir -p test-docs
           cat > test-docs/test-page.md << 'EOF'
           # Test Wiki Page
-          
+
           This is a test page for the wiki publisher action.
-          
+
           ## Features
           - Automatic publishing
           - Content validation
           - Change detection
-          
+
           Generated at: $(date)
+          
+          **Test run:** ${{ github.run_number }}
           EOF
 
       - name: Publish to Wiki
@@ -34,11 +36,14 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           source-file: "test-docs/test-page.md"
           wiki-page: "Test-Page"
-          commit-message: "Test wiki publish from local action"
+          commit-message: "Test wiki publish from local action (run #${{ github.run_number }})"
+          skip-if-no-changes: false
 
       - name: Display Results
         run: |
-          echo "Wiki Publisher Results:"
-          echo "======================"
-          echo "Status: ${{ steps.publish.outputs.status }}"
-          echo "Wiki Page: ${{ steps.publish.outputs.wiki-page-url }}"
+          echo "### Wiki Publisher Results ✅" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Status:** ${{ steps.publish.outputs.status }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Changes Made:** ${{ steps.publish.outputs.changes-made }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Wiki Page URL:** ${{ steps.publish.outputs.wiki-url }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Wiki Page Path:** ${{ steps.publish.outputs.wiki-page-path }}" >> $GITHUB_STEP_SUMMARY

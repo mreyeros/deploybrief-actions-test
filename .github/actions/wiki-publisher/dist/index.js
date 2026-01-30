@@ -107,17 +107,20 @@ async function run() {
             // Add and commit changes
             await exec.exec("git", ["add", `${wikiPage}.md`], { cwd: tempDir });
             // Check if there are changes to commit
-            let hasChanges = false;
-            await exec.exec("git", ["diff", "--staged", "--quiet"], {
-                cwd: tempDir,
-                ignoreReturnCode: true,
-                listeners: {
-                    errline: () => {
-                        hasChanges = true;
-                    },
-                },
-            });
-            if (!hasChanges) {
+            // git diff --staged --quiet returns 0 if no changes, 1 if there are changes
+            let exitCode = 0;
+            try {
+                exitCode = await exec.exec("git", ["diff", "--staged", "--quiet"], {
+                    cwd: tempDir,
+                    ignoreReturnCode: true,
+                });
+            }
+            catch (error) {
+                // exec might throw, but we're using ignoreReturnCode, so this shouldn't happen
+                exitCode = 1;
+            }
+            const hasChanges = exitCode !== 0;
+            if (!hasChanges && skipIfNoChanges) {
                 core.info("✓ No changes to commit");
                 core.setOutput("changes-made", "false");
                 core.setOutput("wiki-url", `https://github.com/${owner}/${repo}/wiki/${wikiPage}`);

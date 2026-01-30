@@ -13,7 +13,7 @@ inputs:
     description: "Path to the markdown file to publish"
     required: true
   wiki-page:
-    description: "Wiki page name (without .md extension). Supports variables like ${{ github.run_number }}"
+    description: "Wiki page name (without .md extension)"
     required: true
     default: "Home"
   commit-message:

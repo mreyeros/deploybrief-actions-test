@@ -11,13 +11,20 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Create Test Tag
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git tag -a v1.0.0-test -m "Test tag for release notes generation"
+
       - name: Generate Release Notes
         id: notes
         uses: ./.github/actions/release-notes
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          # Don't specify tags - will generate from all commits
+          tag-name: v1.0.0-test
           group-by-label: true
+          include-all-commits: true
 
       - name: Display Results
         run: |

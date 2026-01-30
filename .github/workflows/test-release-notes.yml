@@ -16,16 +16,15 @@ jobs:
         uses: ./.github/actions/release-notes
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          tag-name: "v1.0.0"
-          previous-tag: "v0.9.0"
+          # Don't specify tags - will generate from all commits
           group-by-label: true
 
       - name: Display Results
         run: |
-          echo "Release Notes Generated:"
-          echo "========================"
-          cat ${{ steps.notes.outputs.release-notes-file }}
-          echo ""
-          echo "Statistics:"
-          echo "- PR Count: ${{ steps.notes.outputs.pr-count }}"
-          echo "- Commit Count: ${{ steps.notes.outputs.commit-count }}"
+          echo "### Release Notes Generated ✅" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          cat ${{ steps.notes.outputs.release-notes-file }} >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Statistics:**" >> $GITHUB_STEP_SUMMARY
+          echo "- PR Count: ${{ steps.notes.outputs.pr-count }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Commit Count: ${{ steps.notes.outputs.commit-count }}" >> $GITHUB_STEP_SUMMARY

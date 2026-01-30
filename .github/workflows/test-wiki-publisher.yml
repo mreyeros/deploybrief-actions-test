@@ -16,20 +16,20 @@ jobs:
           mkdir -p test-docs
           cat > test-docs/test-page.md << 'EOF'
           # Test Wiki Page
-
+          
           This is a test page for the wiki publisher action.
-
+          
           ## Features
           - Automatic publishing
           - Content validation
           - Change detection
-
+          
           Generated at: $(date)
           EOF
 
       - name: Publish to Wiki
         id: publish
-        uses: ./github-action-wiki-publisher
+        uses: ./.github/actions/wiki-publisher
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           source-file: "test-docs/test-page.md"

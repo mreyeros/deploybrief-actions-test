@@ -14,7 +14,7 @@ jobs:
 
       - name: Validate PR
         id: validate
-        uses: ./github-action-evidence-gate
+        uses: ./.github/actions/evidence-gate
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           require-labels: "reviewed"

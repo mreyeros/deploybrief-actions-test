@@ -5,16 +5,19 @@ This repository is used to test and validate the DeployBrief GitHub Actions befo
 ## Actions Being Tested
 
 ### 1. 🚀 Release Notes Action
+
 **Location:** `.github/actions/release-notes`
 
 Generates professional release notes from GitHub pull requests and commits.
 
-### 2. 📚 Wiki Publisher Action  
+### 2. 📚 Wiki Publisher Action
+
 **Location:** `.github/actions/wiki-publisher`
 
 Automatically publishes documentation to GitHub Wiki.
 
 ### 3. ✅ Evidence Gate Action
+
 **Location:** `.github/actions/evidence-gate`
 
 Validates pull request requirements before allowing merges.
@@ -37,10 +40,12 @@ Validates pull request requirements before allowing merges.
 ### Test 2: Wiki Publisher Action
 
 **Prerequisites:**
+
 - Enable Wiki in repository settings
 - Create initial wiki page
 
 **Steps:**
+
 1. Settings → Features → ✅ Enable Wikis
 2. Go to Wiki tab and create first page
 3. Go to Actions tab → "Test Wiki Publisher"

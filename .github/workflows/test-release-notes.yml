@@ -13,7 +13,7 @@ jobs:
 
       - name: Generate Release Notes
         id: notes
-        uses: ./github-action-release-notes
+        uses: ./.github/actions/release-notes
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           tag-name: "v1.0.0"

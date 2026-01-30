@@ -1,0 +1,46 @@
+name: "DeployBrief Wiki Publisher"
+description: "Publish documentation and release notes to GitHub Wiki"
+author: "DeployBrief"
+branding:
+  icon: "book-open"
+  color: "green"
+
+inputs:
+  github-token:
+    description: "GitHub token for Wiki access (usually secrets.GITHUB_TOKEN)"
+    required: true
+  source-file:
+    description: "Path to the markdown file to publish"
+    required: true
+  wiki-page:
+    description: "Wiki page name (without .md extension). Supports variables like ${{ github.run_number }}"
+    required: true
+    default: "Home"
+  commit-message:
+    description: "Git commit message for the wiki update"
+    required: false
+    default: "Update wiki from workflow"
+  skip-if-no-changes:
+    description: "Skip update if content has not changed"
+    required: false
+    default: "true"
+  git-user-name:
+    description: "Git user name for commits"
+    required: false
+    default: "github-actions[bot]"
+  git-user-email:
+    description: "Git user email for commits"
+    required: false
+    default: "github-actions[bot]@users.noreply.github.com"
+
+outputs:
+  wiki-url:
+    description: "URL to the published wiki page"
+  wiki-page-path:
+    description: "Path to the wiki page that was updated"
+  changes-made:
+    description: "Whether changes were made (true/false)"
+
+runs:
+  using: "node20"
+  main: "dist/index.js"

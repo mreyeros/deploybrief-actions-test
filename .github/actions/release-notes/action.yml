@@ -1,0 +1,53 @@
+name: "DeployBrief Release Notes"
+description: "Generate professional release notes for GitHub releases from pull requests and commits"
+author: "DeployBrief"
+branding:
+  icon: "file-text"
+  color: "blue"
+
+inputs:
+  github-token:
+    description: "GitHub token for API access (usually secrets.GITHUB_TOKEN)"
+    required: true
+  tag-name:
+    description: "Tag name for the release (e.g., v1.0.0). If not provided, uses the latest tag."
+    required: false
+    default: ""
+  previous-tag:
+    description: "Previous tag to compare against. If not provided, uses the previous tag automatically."
+    required: false
+    default: ""
+  output-file:
+    description: "Path to write the release notes markdown file"
+    required: false
+    default: "release-notes.md"
+  include-commit-details:
+    description: "Include detailed commit information in release notes"
+    required: false
+    default: "true"
+  include-pr-details:
+    description: "Include pull request information in release notes"
+    required: false
+    default: "true"
+  group-by-label:
+    description: "Group PRs by labels (e.g., feature, bug, enhancement)"
+    required: false
+    default: "true"
+  custom-sections:
+    description: "Custom sections configuration in JSON format"
+    required: false
+    default: ""
+
+outputs:
+  release-notes:
+    description: "Generated release notes in markdown format"
+  release-notes-file:
+    description: "Path to the generated release notes file"
+  pr-count:
+    description: "Number of pull requests included"
+  commit-count:
+    description: "Number of commits included"
+
+runs:
+  using: "node20"
+  main: "dist/index.js"

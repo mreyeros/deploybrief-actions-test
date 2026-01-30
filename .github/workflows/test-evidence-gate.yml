@@ -1,0 +1,41 @@
+name: Test Evidence Gate Action
+on:
+  pull_request:
+    types: [opened, edited, labeled, unlabeled, synchronize]
+
+jobs:
+  test-evidence-gate:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate PR
+        id: validate
+        uses: ./github-action-evidence-gate
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          require-labels: "reviewed"
+          require-approvals: 1
+          require-description: true
+          min-description-length: 20
+          require-linked-issue: false
+          post-comment: true
+
+      - name: Display Results
+        run: |
+          echo "Evidence Gate Results:"
+          echo "====================="
+          echo "Validation Result: ${{ steps.validate.outputs.validation-result }}"
+          echo "Violation Count: ${{ steps.validate.outputs.violation-count }}"
+          echo ""
+          echo "Violations:"
+          echo '${{ steps.validate.outputs.violations }}'
+
+      - name: Fail if validation failed
+        if: steps.validate.outputs.validation-result == 'failed'
+        run: |
+          echo "❌ PR validation failed"
+          exit 1

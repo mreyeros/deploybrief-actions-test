@@ -1,0 +1,44 @@
+name: Test Wiki Publisher Action
+on:
+  workflow_dispatch:
+
+jobs:
+  test-wiki-publisher:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Create Test Content
+        run: |
+          mkdir -p test-docs
+          cat > test-docs/test-page.md << 'EOF'
+          # Test Wiki Page
+
+          This is a test page for the wiki publisher action.
+
+          ## Features
+          - Automatic publishing
+          - Content validation
+          - Change detection
+
+          Generated at: $(date)
+          EOF
+
+      - name: Publish to Wiki
+        id: publish
+        uses: ./github-action-wiki-publisher
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          source-file: "test-docs/test-page.md"
+          wiki-page: "Test-Page"
+          commit-message: "Test wiki publish from local action"
+
+      - name: Display Results
+        run: |
+          echo "Wiki Publisher Results:"
+          echo "======================"
+          echo "Status: ${{ steps.publish.outputs.status }}"
+          echo "Wiki Page: ${{ steps.publish.outputs.wiki-page-url }}"

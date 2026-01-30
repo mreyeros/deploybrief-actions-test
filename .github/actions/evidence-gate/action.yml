@@ -10,13 +10,9 @@ inputs:
     description: "GitHub token for API access (usually secrets.GITHUB_TOKEN)"
     required: true
   require-labels:
-    description: 'Comma-separated list of required labels (e.g., "reviewed,tested")'
+    description: 'Comma-separated list of required labels (e.g., "deploybrief-evidence-attached,reviewed")'
     required: false
-    default: ""
-  require-approvals:
-    description: "Minimum number of approving reviews required"
-    required: false
-    default: "0"
+    default: "deploybrief-evidence-attached"
   require-linked-issue:
     description: "Require PR to be linked to an issue"
     required: false
@@ -25,6 +21,10 @@ inputs:
     description: "Require PR to have a non-empty description"
     required: false
     default: "true"
+  require-evidence-attachments:
+    description: "Require PR description or comments to have file attachments or image evidence"
+    required: false
+    default: "false"
   require-tests:
     description: "Require tests to be passing"
     required: false

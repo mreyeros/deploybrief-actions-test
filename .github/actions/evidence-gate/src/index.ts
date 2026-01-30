@@ -17,11 +17,11 @@ async function run(): Promise<void> {
       .split(",")
       .map((l) => l.trim())
       .filter((l) => l);
-    const requireApprovals = parseInt(
-      core.getInput("require-approvals") || "0",
-    );
     const requireLinkedIssue = core.getBooleanInput("require-linked-issue");
     const requireDescription = core.getBooleanInput("require-description");
+    const requireEvidenceAttachments = core.getBooleanInput(
+      "require-evidence-attachments",
+    );
     const requireTests = core.getBooleanInput("require-tests");
     const blockedLabels = core
       .getInput("blocked-labels")
@@ -87,28 +87,7 @@ async function run(): Promise<void> {
       }
     }
 
-    // Check 3: Approvals
-    if (requireApprovals > 0) {
-      const { data: reviews } = await octokit.pulls.listReviews({
-        owner,
-        repo,
-        pull_number: prNumber,
-      });
-
-      const approvals = reviews.filter((r) => r.state === "APPROVED").length;
-
-      if (approvals < requireApprovals) {
-        violations.push({
-          rule: "require-approvals",
-          message: `Insufficient approvals: ${approvals}/${requireApprovals}`,
-          severity: "error",
-        });
-      } else {
-        core.info(`✓ Sufficient approvals: ${approvals}/${requireApprovals}`);
-      }
-    }
-
-    // Check 4: Description
+    // Check 3: Description
     if (requireDescription) {
       const body = pr.body || "";
       if (body.trim().length === 0) {
@@ -122,7 +101,7 @@ async function run(): Promise<void> {
       }
     }
 
-    // Check 5: Linked Issue
+    // Check 4: Linked Issue
     if (requireLinkedIssue) {
       const body = pr.body || "";
       // Check for common issue linking patterns: #123, fixes #123, closes #123, etc.
@@ -137,6 +116,38 @@ async function run(): Promise<void> {
         });
       } else {
         core.info("✓ PR is linked to an issue");
+      }
+    }
+
+    // Check 5: Evidence Attachments
+    if (requireEvidenceAttachments) {
+      // Check PR description for images or file references
+      const body = pr.body || "";
+      const hasImageInDescription = /!\[.*?\]\(.*?\)/.test(body); // Markdown images
+      const hasFileAttachment = /<img|<a.*?href.*?download/i.test(body); // HTML attachments
+
+      // Check PR comments for attachments
+      const { data: comments } = await octokit.issues.listComments({
+        owner,
+        repo,
+        issue_number: prNumber,
+      });
+
+      const hasImageInComments = comments.some(
+        (c) =>
+          /!\[.*?\]\(.*?\)/.test(c.body || "") ||
+          /<img|<a.*?href.*?download/i.test(c.body || ""),
+      );
+
+      if (!hasImageInDescription && !hasImageInComments && !hasFileAttachment) {
+        violations.push({
+          rule: "require-evidence-attachments",
+          message:
+            "No evidence attachments found. Please attach screenshots, documents, or other evidence in the PR description or comments",
+          severity: "error",
+        });
+      } else {
+        core.info("✓ Evidence attachments found");
       }
     }
 

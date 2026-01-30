@@ -17,25 +17,22 @@ jobs:
         uses: ./.github/actions/evidence-gate
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          require-labels: "reviewed"
-          require-approvals: 1
+          require-labels: "deploybrief-evidence-attached"
           require-description: true
-          min-description-length: 20
           require-linked-issue: false
-          post-comment: true
+          require-evidence-attachments: false
+          fail-on-violation: true
 
       - name: Display Results
         run: |
-          echo "Evidence Gate Results:"
-          echo "====================="
-          echo "Validation Result: ${{ steps.validate.outputs.validation-result }}"
-          echo "Violation Count: ${{ steps.validate.outputs.violation-count }}"
-          echo ""
-          echo "Violations:"
-          echo '${{ steps.validate.outputs.violations }}'
-
-      - name: Fail if validation failed
-        if: steps.validate.outputs.validation-result == 'failed'
-        run: |
-          echo "❌ PR validation failed"
-          exit 1
+          echo "### Evidence Gate Results 🛡️" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Validation Result:** ${{ steps.validate.outputs.validation-result }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Violation Count:** ${{ steps.validate.outputs.violation-count }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ steps.validate.outputs.violation-count }}" != "0" ]; then
+            echo "**Violations:**" >> $GITHUB_STEP_SUMMARY
+            echo '```json' >> $GITHUB_STEP_SUMMARY
+            echo '${{ steps.validate.outputs.violations }}' >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+          fi

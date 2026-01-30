@@ -7,6 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      actions: read
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -18,7 +19,7 @@ jobs:
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
           
-          # Delete existing tags if they exist
+          # Delete existing tags if they exist (with force)
           git push origin --delete v0.9.0-test v1.0.0-test 2>/dev/null || true
           git tag -d v0.9.0-test v1.0.0-test 2>/dev/null || true
           
@@ -31,8 +32,8 @@ jobs:
           echo "HEAD commit: $(git rev-parse HEAD)"
           git tag -a v1.0.0-test -m "Test tag for release notes generation"
           
-          # Push tags to remote
-          git push origin v0.9.0-test v1.0.0-test
+          # Push tags to remote with force to overwrite existing
+          git push origin v0.9.0-test v1.0.0-test --force
           
           # Wait a moment for GitHub to process the tags
           echo "Waiting for GitHub to process tags..."

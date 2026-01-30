@@ -1,0 +1,55 @@
+name: "DeployBrief Evidence Gate"
+description: "Validate pull request evidence and requirements before allowing merges"
+author: "DeployBrief"
+branding:
+  icon: "shield"
+  color: "purple"
+
+inputs:
+  github-token:
+    description: "GitHub token for API access (usually secrets.GITHUB_TOKEN)"
+    required: true
+  require-labels:
+    description: 'Comma-separated list of required labels (e.g., "reviewed,tested")'
+    required: false
+    default: ""
+  require-approvals:
+    description: "Minimum number of approving reviews required"
+    required: false
+    default: "0"
+  require-linked-issue:
+    description: "Require PR to be linked to an issue"
+    required: false
+    default: "false"
+  require-description:
+    description: "Require PR to have a non-empty description"
+    required: false
+    default: "true"
+  require-tests:
+    description: "Require tests to be passing"
+    required: false
+    default: "false"
+  blocked-labels:
+    description: 'Comma-separated list of labels that block merging (e.g., "wip,do-not-merge")'
+    required: false
+    default: "wip,do-not-merge,work-in-progress"
+  custom-checks:
+    description: "JSON configuration for custom validation rules"
+    required: false
+    default: ""
+  fail-on-violation:
+    description: "Fail the check if validation fails"
+    required: false
+    default: "true"
+
+outputs:
+  validation-result:
+    description: "Overall validation result (passed/failed)"
+  violations:
+    description: "List of validation violations in JSON format"
+  violation-count:
+    description: "Number of validation violations"
+
+runs:
+  using: "node20"
+  main: "dist/index.js"

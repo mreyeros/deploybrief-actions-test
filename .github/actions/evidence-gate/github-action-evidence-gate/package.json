@@ -1,0 +1,32 @@
+{
+  "name": "deploybrief-evidence-gate-action",
+  "version": "1.0.0",
+  "description": "Validate pull request evidence and requirements before allowing merges",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc && ncc build dist/index.js -o dist",
+    "package": "npm run build",
+    "test": "echo \"No tests yet\" && exit 0"
+  },
+  "keywords": [
+    "github",
+    "github-actions",
+    "pull-request",
+    "validation",
+    "evidence",
+    "quality-gate",
+    "deploybrief"
+  ],
+  "author": "DeployBrief",
+  "license": "MIT",
+  "dependencies": {
+    "@actions/core": "^1.10.1",
+    "@actions/github": "^6.0.0",
+    "@octokit/rest": "^20.0.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "@vercel/ncc": "^0.38.1",
+    "typescript": "^5.3.3"
+  }
+}

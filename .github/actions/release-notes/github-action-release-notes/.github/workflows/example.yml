@@ -1,0 +1,47 @@
+name: Example Release Workflow
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+jobs:
+  create-release:
+    name: Create Release with Notes
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Generate Release Notes
+        id: release_notes
+        uses: ./
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          tag-name: ${{ github.ref_name }}
+          group-by-label: true
+          include-pr-details: true
+          include-commit-details: true
+
+      - name: Display Generated Stats
+        run: |
+          echo "## Release Statistics" >> $GITHUB_STEP_SUMMARY
+          echo "- **Pull Requests**: ${{ steps.release_notes.outputs.pr-count }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commits**: ${{ steps.release_notes.outputs.commit-count }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Release notes file: ${{ steps.release_notes.outputs.release-notes-file }}" >> $GITHUB_STEP_SUMMARY
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          name: Release ${{ github.ref_name }}
+          body_path: ${{ steps.release_notes.outputs.release-notes-file }}
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

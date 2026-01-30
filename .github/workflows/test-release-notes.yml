@@ -17,13 +17,29 @@ jobs:
         run: |
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
+          
+          # Delete existing tags if they exist
+          git push origin --delete v0.9.0-test v1.0.0-test 2>/dev/null || true
+          git tag -d v0.9.0-test v1.0.0-test 2>/dev/null || true
+          
           # Create a tag at the first commit
           FIRST_COMMIT=$(git rev-list --max-parents=0 HEAD)
-          git tag -a v0.9.0-test -m "Initial test tag" $FIRST_COMMIT || true
+          echo "First commit: $FIRST_COMMIT"
+          git tag -a v0.9.0-test -m "Initial test tag" $FIRST_COMMIT
+          
           # Create a tag at HEAD
-          git tag -a v1.0.0-test -m "Test tag for release notes generation" || true
+          echo "HEAD commit: $(git rev-parse HEAD)"
+          git tag -a v1.0.0-test -m "Test tag for release notes generation"
+          
           # Push tags to remote
-          git push origin v0.9.0-test v1.0.0-test || true
+          git push origin v0.9.0-test v1.0.0-test
+          
+          # Wait a moment for GitHub to process the tags
+          echo "Waiting for GitHub to process tags..."
+          sleep 5
+          
+          # Verify tags exist on remote
+          git ls-remote --tags origin
 
       - name: Generate Release Notes
         id: notes

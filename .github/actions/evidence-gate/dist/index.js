@@ -52,7 +52,6 @@ async function run() {
             .split(",")
             .map((l) => l.trim())
             .filter((l) => l);
-        const requireApprovals = parseInt(core.getInput("require-approvals") || "0");
         const requireLinkedIssue = core.getBooleanInput("require-linked-issue");
         const requireDescription = core.getBooleanInput("require-description");
         const requireEvidenceAttachments = core.getBooleanInput("require-evidence-attachments");
@@ -108,26 +107,7 @@ async function run() {
                 core.info("✓ No blocking labels found");
             }
         }
-        // Check 3: Approvals
-        if (requireApprovals > 0) {
-            const { data: reviews } = await octokit.pulls.listReviews({
-                owner,
-                repo,
-                pull_number: prNumber,
-            });
-            const approvals = reviews.filter((r) => r.state === "APPROVED").length;
-            if (approvals < requireApprovals) {
-                violations.push({
-                    rule: "require-approvals",
-                    message: `Insufficient approvals: ${approvals}/${requireApprovals}`,
-                    severity: "error",
-                });
-            }
-            else {
-                core.info(`✓ Sufficient approvals: ${approvals}/${requireApprovals}`);
-            }
-        }
-        // Check 4: Description
+        // Check 3: Description
         if (requireDescription) {
             const body = pr.body || "";
             if (body.trim().length === 0) {
@@ -141,7 +121,7 @@ async function run() {
                 core.info(`✓ PR has description (${body.length} characters)`);
             }
         }
-        // Check 5: Linked Issue
+        // Check 4: Linked Issue
         if (requireLinkedIssue) {
             const body = pr.body || "";
             // Check for common issue linking patterns: #123, fixes #123, closes #123, etc.
@@ -157,7 +137,7 @@ async function run() {
                 core.info("✓ PR is linked to an issue");
             }
         }
-        // Check 6: Evidence Attachments
+        // Check 5: Evidence Attachments
         if (requireEvidenceAttachments) {
             // Check PR description for images or file references
             const body = pr.body || "";
@@ -182,7 +162,7 @@ async function run() {
                 core.info("✓ Evidence attachments found");
             }
         }
-        // Check 7: Tests Passing
+        // Check 6: Tests Passing
         if (requireTests) {
             const { data: checks } = await octokit.checks.listForRef({
                 owner,

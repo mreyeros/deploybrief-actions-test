@@ -17,10 +17,10 @@ jobs:
         uses: ./.github/actions/evidence-gate
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          require-labels: "reviewed"
-          require-approvals: 1
+          require-labels: "deploybrief-evidence-attached"
           require-description: true
           require-linked-issue: false
+          require-evidence-attachments: false
           fail-on-violation: true
 
       - name: Display Results

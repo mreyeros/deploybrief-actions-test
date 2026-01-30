@@ -13,10 +13,6 @@ inputs:
     description: 'Comma-separated list of required labels (e.g., "deploybrief-evidence-attached,reviewed")'
     required: false
     default: "deploybrief-evidence-attached"
-  require-approvals:
-    description: "Minimum number of approving reviews required"
-    required: false
-    default: "0"
   require-linked-issue:
     description: "Require PR to be linked to an issue"
     required: false

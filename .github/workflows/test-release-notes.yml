@@ -13,7 +13,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Create Test Tags
+      - name: Create Test Commits and Tags
         run: |
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
@@ -22,16 +22,33 @@ jobs:
           git push origin --delete v0.9.0-test v1.0.0-test 2>/dev/null || true
           git tag -d v0.9.0-test v1.0.0-test 2>/dev/null || true
           
-          # Get second commit (to avoid workflow permission issues on first commit)
-          SECOND_COMMIT=$(git rev-list --reverse HEAD | sed -n 2p)
-          echo "Tagging v0.9.0-test at commit: $SECOND_COMMIT"
-          git tag -a v0.9.0-test -m "Initial test tag" $SECOND_COMMIT
+          # Create test commits that don't touch workflow files
+          # This avoids the workflow permission issue
+          echo "Test commit 1 - $(date)" > test-file.txt
+          git add test-file.txt
+          git commit -m "test: add test file for release notes testing"
+          FIRST_TEST_COMMIT=$(git rev-parse HEAD)
+          echo "Created first test commit: $FIRST_TEST_COMMIT"
           
-          # Tag HEAD
-          echo "Tagging v1.0.0-test at HEAD: $(git rev-parse HEAD)"
-          git tag -a v1.0.0-test -m "Test tag for release notes generation"
+          # Create second test commit
+          echo "Test commit 2 - $(date)" >> test-file.txt
+          git add test-file.txt
+          git commit -m "test: update test file with more changes"
           
-          # Push tags
+          echo "Additional changes - $(date)" >> test-file.txt
+          git add test-file.txt
+          git commit -m "test: add more test data"
+          SECOND_TEST_COMMIT=$(git rev-parse HEAD)
+          echo "Created second test commit: $SECOND_TEST_COMMIT"
+          
+          # Push the test commits
+          git push origin HEAD:${{ github.ref_name }}
+          
+          # Now tag the test commits (these don't have workflow files)
+          git tag -a v0.9.0-test -m "Initial test tag" $FIRST_TEST_COMMIT
+          git tag -a v1.0.0-test -m "Test tag for release notes generation" $SECOND_TEST_COMMIT
+          
+          # Push tags - should work now since commits don't contain workflows
           git push origin v0.9.0-test v1.0.0-test --force
           
           # Wait for GitHub to process

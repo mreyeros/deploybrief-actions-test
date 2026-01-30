@@ -11,10 +11,14 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Create Test Tag
+      - name: Create Test Tags
         run: |
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
+          # Create a tag at the first commit
+          FIRST_COMMIT=$(git rev-list --max-parents=0 HEAD)
+          git tag -a v0.9.0-test -m "Initial test tag" $FIRST_COMMIT
+          # Create a tag at HEAD
           git tag -a v1.0.0-test -m "Test tag for release notes generation"
 
       - name: Generate Release Notes
@@ -23,8 +27,8 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           tag-name: v1.0.0-test
+          previous-tag: v0.9.0-test
           group-by-label: true
-          include-all-commits: true
 
       - name: Display Results
         run: |
@@ -35,3 +39,6 @@ jobs:
           echo "**Statistics:**" >> $GITHUB_STEP_SUMMARY
           echo "- PR Count: ${{ steps.notes.outputs.pr-count }}" >> $GITHUB_STEP_SUMMARY
           echo "- Commit Count: ${{ steps.notes.outputs.commit-count }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📝 Note:" >> $GITHUB_STEP_SUMMARY
+          echo "This test repository has no PRs, so commit count shows the actual changes." >> $GITHUB_STEP_SUMMARY

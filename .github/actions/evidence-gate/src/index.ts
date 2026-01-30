@@ -22,6 +22,9 @@ async function run(): Promise<void> {
     );
     const requireLinkedIssue = core.getBooleanInput("require-linked-issue");
     const requireDescription = core.getBooleanInput("require-description");
+    const requireEvidenceAttachments = core.getBooleanInput(
+      "require-evidence-attachments",
+    );
     const requireTests = core.getBooleanInput("require-tests");
     const blockedLabels = core
       .getInput("blocked-labels")
@@ -140,7 +143,39 @@ async function run(): Promise<void> {
       }
     }
 
-    // Check 6: Tests Passing
+    // Check 6: Evidence Attachments
+    if (requireEvidenceAttachments) {
+      // Check PR description for images or file references
+      const body = pr.body || "";
+      const hasImageInDescription = /!\[.*?\]\(.*?\)/.test(body); // Markdown images
+      const hasFileAttachment = /<img|<a.*?href.*?download/i.test(body); // HTML attachments
+
+      // Check PR comments for attachments
+      const { data: comments } = await octokit.issues.listComments({
+        owner,
+        repo,
+        issue_number: prNumber,
+      });
+
+      const hasImageInComments = comments.some(
+        (c) =>
+          /!\[.*?\]\(.*?\)/.test(c.body || "") ||
+          /<img|<a.*?href.*?download/i.test(c.body || ""),
+      );
+
+      if (!hasImageInDescription && !hasImageInComments && !hasFileAttachment) {
+        violations.push({
+          rule: "require-evidence-attachments",
+          message:
+            "No evidence attachments found. Please attach screenshots, documents, or other evidence in the PR description or comments",
+          severity: "error",
+        });
+      } else {
+        core.info("✓ Evidence attachments found");
+      }
+    }
+
+    // Check 7: Tests Passing
     if (requireTests) {
       const { data: checks } = await octokit.checks.listForRef({
         owner,
